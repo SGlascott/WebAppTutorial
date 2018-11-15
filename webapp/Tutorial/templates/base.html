@@ -11,14 +11,10 @@
     <title>Web App Tutorial</title>
 </head>
 <body>
-<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+<nav class="navbar navbar-expand-md fixed-top">
       <a class="navbar-brand" href="{% url 'Tutorial:home' %}">TU Happening</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
+      <div class="collapse navbar-collapse order-3" id="navbarsExampleDefault">
+        <ul class="navbar-nav ml-auto">
           {% if user.is_authenticated %}
               <li class = "nav-item">
                 <a class = "nav-link" href="#">Profile<span class="sr-only">(current)</span></a>
@@ -34,7 +30,7 @@
             <a class = "nav-link" href="{% url 'Tutorial:register' %}">Register<span class="sr-only">(current)</span></a>
           </li>
           {% endif %}
-          <li>
+          <li class = "nav-item">
             <a class = "nav-link" href="{% url 'Tutorial:forum' %}">Forum<span class="sr-only">(current)</span></a>
           </li>
         </ul>
@@ -45,6 +41,10 @@
 
     {% endblock %}
 </main>
+
+<footer class="footer fixed-bottom">
+Scott Glascott
+</footer>
 </body>
 </html>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
