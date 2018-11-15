@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block main %}
+
+    <div class = "table-responsive">
+        <table class = "table table-striped">
+            <thead>
+                <tr>
+                    {% if request.user.is_staff %}
+                        <th>ID</th>
+                    {% endif %}
+                    <th>Title</th>
+                    <th>Body</th>
+                    <th>Date</th>
+                    <th>User</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                <tr>
+                    {% if request.user.is_staff %}
+                    <td>{{post.id}}</td>
+                    {% endif %}
+                    <td>{{post.postTitle}}</td>
+                    <td>{{post.postBody}}</td>
+                    <td>{{post.postDate}}</td>
+                    <td>{{post.user}}</td>
+                    {% if request.user.is_staff %}
+                    <td><a href = "/forum/delete/{{post.id}}/" class = "btn btn-danger">X</a></td>
+                    {% endif %}
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a href = "{% url 'Tutorial:newForum' %}" class = "btn btn-md"> New Post </a>
+
+{% endblock main %}
