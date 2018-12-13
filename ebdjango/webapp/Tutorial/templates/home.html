@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block main %}
+{% load static %}
+<div class = "container-fluid">
+    <div id = "home">
+    <img id="banner" src="static/Tutorial/img/banner.png">
+    <h1 id = "homeH1">Django Web Applications</h1>
+    <p>
+        Welcome to my Django web Application Tutorial! Django is a modern web framework written in python and used by many large companies today such as Instagram, YouTube, Spotify, and Dropbox. 
+        The purpose of this tutorial is to demonstrate how you might implement what you have learned this semester in a modern web framework. To begin, 
+        you need to have the latest version of python and an IDE to work in. You will then need to have a virtual environment with Django installed. 
+        This will be your working environment for your project.
+    </p>
+    <h2>Architecture</h2>
+    <p>
+         The Django web framework is sitting in the backend waiting for a user to make a URL request. When the request is received the URL Dispatcher 
+         determines which View to load. A View is a python function that generates a web response. Views handle all of the mechanics of your webpages. 
+         A View can be as simple as returning a simple HTML page, or it can do something more complex like fetch data from the database, load it into a 
+         dynamic HTML page, and then return it to the user. If the view accesses the database, it will do so through Django Models. Django handles all 
+         communication between the server and the Database. A Model is a class that represents a Table in your database. When Models are created, you 
+         initialize them with their appropriate data types.  When the server retrieves the data from the database, it uses the Model to turn the data 
+         into an object which can then be used by the Views. 
+    </p>
+    <h2>URL Dispatcher</h2>
+    <p>
+        As discussed earlier, the URL Dispatcher determine which View is executed in order to return a response to the user. You create a path by 
+        designating a URL path, the view to be called, and then you can assign the path a name to be referenced in other functions.
+        <div class="card">
+        <div class="card-body">
+        <pre><code>
+            from django.urls import path, include
+            from .views import *
+
+            app_name = 'Tutorial'
+            urlpatterns = [
+                path('', HomeView, name = 'home'),
+                path('login/', LoginView, name = 'login'),
+                path('logout/', LogoutView, name = 'logout'),
+                path('register/', registerView, name='register'),
+                path('forum/',ForumView,name='forum'),
+                path('forum/new/', ForumPostFormView, name = 'newForum'),
+                path('forum/delete/', ForumPostDeleteView, name = 'deleteForum'),
+            ]
+        </code></pre></div></div>
+    </p>
+
+    <h2>Views</h2>
+    <p>
+        Views are the core functionality of your Django web applications. An example of a simple View would be the following 
+        function used to return the home page:
+        <div class="card">
+        <div class="card-body">
+        <pre><code>
+            def HomeView(request):
+                return render(request, 'home.html')
+        </code></pre></div></div>
+    </p>
+    <p>
+        Views can also be used to display data using Models and Forms. This example first takes stores the built in user model from the 
+        request, similar to our session handling with JSP pages, and stores it into a variable labeled “user.”  It then retrieves all of 
+        the stored ForumPost models using the objects.all() function. This Model will be discussed more in depth later. The all() method 
+        generates a query specific to your object and will return a query set of all objects returned. This query set can be parsed into 
+        any data structure a developer might need.  I then create a dictionary associating the variables with keys to be sent to your HTML 
+        template.  Finally you return your rendered HTML template with your request and dictionary data. 
+        <div class="card">
+        <div class="card-body">
+        <pre><code>
+        def ForumView(request):
+            user = request.user
+            ForumPosts =  ForumPost.objects.all()
+            #print(ForumPosts)
+            context = {'posts': ForumPosts, 'user': user,}
+            return render(request, 'ForumPost.html', context)
+        </code></pre></div></div>
+    </p>
+    <p>
+        Views are also used for requests that simply add or delete entries in the database. To save information, you retrieve the data from 
+        your HTML form, then you prepare the data to be committed, and then use the save() function to save the data:
+        <div class="card">
+        <div class="card-body">
+        <pre><code>
+            def ForumPostFormView(request):
+                form = ForumPostForm(request.POST or None)
+                if form.is_valid():
+                    post = form.save(commit=False)
+                    post.user = request.user
+                    post.save()
+                    return redirect('Tutorial:forum')
+                context = {'form': form, 'title': 'New Post',}
+                return render(request, "NewForumPost.html", context)
+        </code></pre></div></div>
+    </p>
+    <p>
+        To delete an entry, you simply retrieve the object using some searching criteria, in this case we use the primary 
+        key which we send through requests. Then we use the delete() function on the object and return to a page. In this case we return 
+        to the original page which simply acts as a refresh to see that the data has been deleted.
+        <div class="card">
+        <div class="card-body">
+        <pre><code>
+            def ForumPostDeleteView(request, postid):
+                post = ForumPost.objects.get(pk = postid)
+                post.delete()
+                return redirect('/forum/')
+        </code></pre></div></div>
+    </p>
+
+    <h2>Models</h2>
+    <p>
+        As discussed previously Models are objects that are used to manage database entries. Each Model represents one table in the database. 
+        Each Model contains the attributes which are the fields in the table. They are then initialized by assigning a database datatype to it.
+        For this example we use the Forum Posts which store all of the posts by users. We have our user field which is a foreign key to the built 
+        in User object. This is used to keep track of each user’s posts and when working with the ForumPost Model we can also access all 
+        attributes of the User object. It also stores the title and body as char fields with varying max lengths. And finally it stores the 
+        date of the post which is auto filled to the current date. 
+        <div class="card">
+        <div class="card-body">
+        <pre><code>
+            class ForumPost(models.Model):
+                user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+                postTitle = models.CharField(max_length = 100)
+                postBody = models.CharField(max_length = 1000)
+                postDate = models.DateField(default=timezone.now)
+                
+                def __str__(self):
+                    return self.postTitle
+        </code></pre></div></div>
+    <p>
+
+    <h2>HTML Templates</h2>
+    <p>
+        HTML Templates are Django’s way of rendering dynamic HTML pages. Using various symbols and key words we can inject python into our 
+        HTML pages to build dynamic pages. For our projects we used ajax calls to render the content of our web pages. We can do this in Django 
+        by using the “extends” and “block” functions. For example, we have our base.html file which contains our header, navbar, footer, and a 
+        “block” called “main.” Here is a simple example of what this may look like, , unfortunatly due to the nature of these files, 
+        I must import a picture instead of a live code example:
+        </p>
+        <img id="codeImg" src="{% static 'Tutorial/img/baseExample.png' %}"/>
+
+        <p>
+        We can then populate this main block by writing a new HTML file that extends our base. We then open the block and populate it with any 
+        information we want. Pages can have multiple blocks and you can have chains of extension that cascade all the way to the top. Here 
+        is an example of a content file:
+        </p>
+        <img id="codeImg" src="static/Tutorial/img/extendExample.png">
+        
+
+        <p>
+        You can also use templates to inject python that would allow you to build tables, charts, or graphs of various sizes. For this project 
+        I use this method to write a for loop that will build the forum page. The view sends a list of post objects to the template, then the 
+        for loop iterates through this list and builds a row in a table for each entry. Here is what that code looks like, note the extension 
+        and block as well:
+        </p>
+        <img id="codeImg" src="static/Tutorial/img/forumCode.png">
+        
+    </div>
+</div>
+{% endblock main %}
