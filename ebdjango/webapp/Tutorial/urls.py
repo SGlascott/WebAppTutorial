@@ -8,6 +8,7 @@ urlpatterns = [
     #path('logout/', LogoutView, name = 'logout'),
     path('register/', UserFormView.as_view(), name='register'),
     path('accounts/', include('django.contrib.auth.urls')),
+    path("profile/", ProfileView, name = "profilePage"),
     path('forum/',ForumView,name='forum'),
     path('forum/new/', ForumPostFormView, name = 'newForum'),
     path('forum/delete/<postid>/', ForumPostDeleteView, name = 'deleteForum'),

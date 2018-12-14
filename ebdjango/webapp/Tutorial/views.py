@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 
 from .models import *
 from .forms import *
@@ -73,6 +74,9 @@ def ForumView(request):
     return render(request, 'ForumPost.html', context)
 
 def ForumPostFormView(request):
+    if request.user.is_anonymous:
+        messages.info(request, "You must be logged in to make a post!")
+        return redirect('Tutorial:login')
     form = ForumPostForm(request.POST or None)
     if form.is_valid():
         post = form.save(commit=False)
@@ -86,3 +90,8 @@ def ForumPostDeleteView(request, postid):
     post = ForumPost.objects.get(pk = postid)
     post.delete()
     return redirect('/forum/')
+
+def ProfileView(request):
+    user = request.user
+    context = {'user': user}
+    return render(request, "profile.html", context)
